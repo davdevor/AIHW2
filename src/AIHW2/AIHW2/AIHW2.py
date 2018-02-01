@@ -1,4 +1,6 @@
 import sys
+import copy
+import timeit
 class HW2:
     n=0
     matrix = []
@@ -7,6 +9,7 @@ class HW2:
     sumColumns = []
     sumDiagonals = []
     freeSpaces = []
+    nodesVisited = []
     def __init__(self, **kwargs):
         self.readData(kwargs['fileName'])
         return super().__init__()
@@ -27,7 +30,7 @@ class HW2:
                     self.freeSpaces.append([x,y])
                     self.matrix[x][y] = 0
 
-        self.matrixCopy =[x for x in self.matrix]
+        self.matrixCopy = copy.deepcopy(self.matrix)
         line = file.readline()
         line = line.split(' ')
         for x in line:
@@ -47,11 +50,13 @@ class HW2:
         nodes = []
         
         for x in self.freeSpaces:
-            newNode = [x for x in node]
+            newNode = copy.deepcopy(node)
             num = newNode[x[0]][x[1]] + 1
-            if(num <= self.n**2):
+            if(num <= 9):
                 newNode[x[0]][x[1]] = num
-                nodes.append(newNode)
+                if(newNode not in self.nodesVisited):
+                    nodes.append(newNode)
+                    self.nodesVisited.append(newNode)
         return nodes
 
     def isGoal(self,matrix):
@@ -85,8 +90,11 @@ class HW2:
         if(diagSum!= self.sumDiagonals[0]):
             return False
         diagSum=0
-        for x in range(n,0):
-            diagSum+= matrix[i][i]
+        
+        y = n-1
+        for x in range(n):
+            diagSum+= matrix[x][y]
+            y-=1
         if(diagSum!= self.sumDiagonals[1]):
             return False
         return True
@@ -94,7 +102,7 @@ class HW2:
 
     def getSolution(self,currentNode):
         if(self.isGoal(currentNode)):
-            # save node
+            print(currentNode)
             return True
         else:
             possibleNodes = self.generateNodes(currentNode)
@@ -109,7 +117,9 @@ class HW2:
 
 
 def main():
-    obj = HW2(fileName = 'sample1.txt')
-    obj.getSolution(obj.getMatrix())
-    print(obj.getMatrix())
+    start = timeit.timeit()
+    obj = HW2(fileName = 'test.txt')
+    print(obj.getSolution(obj.getMatrix()))
+    end = timeit.timeit()
+    print(end-start)
 main()
